@@ -1,6 +1,8 @@
 import config from './../../config';
 
 const reddit = {
+    VOTE_UP: 'up',
+    VOTE_DOWN: 'down',
 
     getPosts: function (subreddit = 'popular') {
         // ToDo: subreddit not handled
@@ -96,6 +98,17 @@ const reddit = {
         var txt = document.createElement("textarea");
         txt.innerHTML = html;
         return txt.value;
+    },
+
+    getVoteCount: function (vote) {
+        switch (vote) {
+            case this.VOTE_UP:
+                return 1;
+            case this.VOTE_DOWN:
+                return -1;
+            default:
+                return 0;
+        }
     }
 
 };

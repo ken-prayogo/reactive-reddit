@@ -28,6 +28,27 @@ class App extends Component {
     }
 
     actionHandler = {
+        votePost: (index, vote) => {
+            // Add vote data to the post state
+            const newPosts = [
+                ...this.state.posts
+            ];
+            let currentUserVote = newPosts[index].data.custom.userVote;
+            // Revert score first (if previously clicked)
+            newPosts[index].data.score -= reddit.getVoteCount(currentUserVote);
+
+            // Now determine the vote after-click
+            // Logic Note: If the same vote is clicked twice, cancel the vote
+            currentUserVote = currentUserVote === vote ? null : vote;
+            newPosts[index].data.custom.userVote = currentUserVote;
+
+            // Update score
+            newPosts[index].data.score += reddit.getVoteCount(currentUserVote);
+
+            this.setState({
+                posts: newPosts
+            });
+        },
         expandPost: (postId) => {
             this.setState({
                 expandedPostId: postId
@@ -36,10 +57,10 @@ class App extends Component {
     }
 
     renderPosts() {
-        return this.state.posts.map(child => {
+        return this.state.posts.map((child, index) => {
             const post = child.data;
             return (
-                <Post key={post.id} postData={post}
+                <Post key={post.id} index={index} postData={post}
                     actionHandler={this.actionHandler}
                     expanded={this.state.expandedPostId === post.id} />
             );
