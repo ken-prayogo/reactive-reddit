@@ -1,5 +1,6 @@
 # Configurations
 config.json
+.eslintrc.json
 
 # Logs
 logs
