@@ -1,0 +1,20 @@
+{
+    "extends": "react",
+    "rules": {
+        "space-before-function-paren": [
+            0,
+            "always"
+        ],
+        "react/prop-types": [
+            0,
+            "always"
+        ]
+    },
+    "globals": {
+        "document": true,
+        "console": true,
+        "window": true,
+        "fetch": true,
+        "Promise": true
+    }
+}

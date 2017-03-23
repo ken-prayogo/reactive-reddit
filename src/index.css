@@ -1,5 +1,136 @@
 body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+}
+.App {
+    font-family: sans-serif;
+}
+/* Utility Styling */
+.hidden {
+    display: none;
+}
+/* Header */
+.header {
+    background-color: #1565C0;
+    padding: 20px 0;
+    position: relative;
+    text-align: center;
+}
+.header-title {
+    color: #fff;
+    margin: auto;
+}
+.header-button {
+    font-size: 50px;
+    color: #fff;
+    position: absolute;
+    cursor: pointer;
+    top: 12px;
+}
+.menu-bar {
+    left: 20px;
+}
+.user-icon {
+    right: 20px;
+}
+/* Body */
+.Body {
+    padding: 10px;
+    margin-right: 20px;
+}
+.post {
+    /*height: 100px;*/
+    height: auto;
+    width: 100%;
+    background-color: #EEEEEE;
+    border-radius: 3px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+.post-head {
+    display: inline-flex;
+}
+.post-section {
+    margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+.post-thumbnail {
+    border-radius: 3px;
+    width: 140px;
+    min-width: 140px;
+    height: auto;
+    max-height: 135px;
+}
+.post-title {
+    margin-top: 10px;
+    font-size: 20px;
+    color: #424242;
+    margin-bottom: 5px;
+}
+/* Post Details */
+.post-details p {
+    display: inline-block;
+    margin: 5px 20px 10px 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: #757575;
+}
+.post-details p.post-score {
+    font-size: 18px;
+}
+.post-actions p {
+    display: inline;
+}
+/* Post Body */
+.post-body {
+    margin-left: 160px;
+    margin-top: 15px;
+}
+.post-preview-media {
+    max-width: 50%;
+    min-width: 500px;
+}
+.post-body-html p {
+    color: #212121;
+    line-height: 1.3;
+}
+/* Buttons */
+.btn-circle {
+    cursor: pointer;
+    font-size: 25px;
+    border-radius: 25px;
+    border-width: 1px;
+    border-style: double;
+    color: #fff;
+    background-color: black;
+    padding: 3px 8px 7px 8px;
+    outline: none;
+    margin-right: 10px;
+}
+a.btn-circle {
+    border: none;
+    padding: 4px 8px 8px 8px;
+}
+.action-upvote, .action-downvote {
+    background-color: #BDBDBD;
+}
+.action-upvote:active, .action-upvote.clicked {
+    background-color: #00C853;
+}
+.action-downvote:active, .action-downvote.clicked {
+    background-color: #B71C1C;
+}
+.action-expand, .action-hide-content {
+    background-color: #2196F3;
+}
+.action-expand:active, .action-hide-content:active {
+    background-color: #1E88E5;
+}
+.action-view-link-reddit {
+    background-color: #90CAF9;
+}
+.action-view-link-reddit:active {
+    background-color: #64B5F6;
 }

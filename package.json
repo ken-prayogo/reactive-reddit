@@ -4,12 +4,15 @@
   "author": "Ken Prayogo",
   "private": true,
   "devDependencies": {
+    "eslint": "^3.17.1",
+    "eslint-config-react": "^1.1.7",
     "react-scripts": "0.9.5"
   },
   "dependencies": {
     "less": "^2.7.2",
     "react": "^15.4.2",
-    "react-dom": "^15.4.2"
+    "react-dom": "^15.4.2",
+    "react-icons": "^2.2.3"
   },
   "scripts": {
     "start": "react-scripts start",
