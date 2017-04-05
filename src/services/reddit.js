@@ -1,13 +1,18 @@
 import config from './../../config';
+/**
+ * Date/Time management
+ */
+import moment from 'moment';
+moment().format();
 
 const reddit = {
     VOTE_UP: 'up',
     VOTE_DOWN: 'down',
 
-    getPosts: function (subreddit = 'popular') {
+    getPosts: function (subreddit = config.api.subs.default, category = config.api.sub_category_default) {
         // ToDo: subreddit not handled
         return new Promise((resolve, reject) => {
-            const uri = config.api.uri;
+            const uri = `${config.api.subreddit_prefix}/${subreddit}/${category}.json`;
             // const args = {
             //     method: 'GET',
             //     headers: {
@@ -27,11 +32,11 @@ const reddit = {
                     for (const post of json.data.children) {
                         post.data.custom = this.buildCustomProps(post.data);
                     }
-                    console.log(json.data.children);
+                    // console.log(json.data.children);
                     resolve(json.data.children);
                 })
                 .catch((err) => {
-                    console.log(err);
+                    reject(err);
                 });
         });
     },
@@ -40,13 +45,15 @@ const reddit = {
         let canExpand = false;
         const type = this.getPostClassification(postData);
         const isMedia = this.isTypeMedia(type);
+        const timePosted = this.getTimePostedPhrase(postData.created);
         let mediaPreviewUrl = null;
         let textHtml = null;
         // Determine media rreview source
         if (isMedia) {
             if (type === 'media-embed') {
                 let embedUrl = postData.preview.images[0];
-                if (this.isGif(postData)) {
+                const isGif = this.isGif(postData);
+                if (isGif && embedUrl.variants.gif) {
                     embedUrl = embedUrl.variants.gif.source.url;
                 } else {
                     embedUrl = embedUrl.source.url;
@@ -64,7 +71,8 @@ const reddit = {
         if (type === 'text') {
             textHtml = { __html: this.decodeHtml(postData.selftext_html) };
         }
-        return { canExpand, type, isMedia, mediaPreviewUrl, textHtml, userVote: null };
+        return { canExpand, type, isMedia, mediaPreviewUrl,
+            textHtml, userVote: null, timePosted };
     },
 
     isGif: function (postData) {
@@ -108,6 +116,27 @@ const reddit = {
                 return -1;
             default:
                 return 0;
+        }
+    },
+
+    getTimePostedPhrase: function (created) {
+        const now = moment();
+        const createDate = moment(created, 'X');
+
+        const daysDiff = Math.abs(createDate.clone().diff(now, 'days'));
+        if (daysDiff >= 1) {
+            return `${daysDiff} day(s)`;
+        }
+        const hoursDiff = Math.abs(createDate.clone().diff(now, 'hours'));
+        if (hoursDiff >= 1) {
+            return `${hoursDiff} hour(s)`;
+        }
+
+        const minutesDiff = Math.abs(createDate.clone().diff(now, 'minutes'));
+        if (minutesDiff >= 1) {
+            return `${minutesDiff} minute(s)`;
+        } else {
+            return 'less than a minute';
         }
     }
 

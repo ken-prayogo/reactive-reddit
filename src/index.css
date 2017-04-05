@@ -33,6 +33,22 @@ body {
 .user-icon {
     right: 20px;
 }
+/* Filter Menu */
+.menu-filter {
+    padding: 10px;
+    background: #EEEEEE;
+}
+.menu-filter input {
+    padding-left: 2px;
+}
+.menu-filter div {
+    display: inline;
+    margin-right: 15px;
+}
+.menu-filter label {
+    font-weight: bold;
+    margin-right: 3px;
+}
 /* Body */
 .Body {
     padding: 10px;
@@ -74,11 +90,34 @@ body {
     display: inline-block;
     margin: 5px 20px 10px 0;
     font-size: 16px;
-    font-weight: bold;
     color: #757575;
 }
 .post-details p.post-score {
-    font-size: 18px;
+    font-weight: bold;
+    font-size: 20px;
+    margin-right: 10px;
+}
+.post-details p.post-golds {
+    color: #FFD600;
+    font-weight: bold;
+    font-size: 20px;
+}
+.post-details p.post-golds svg {
+    vertical-align: top !important;
+}
+.post-details p.post-nsfw {
+    color: #F44336;
+    border: 1px solid;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-size: 14px;
+    font-weight: bold;
+}
+.post-score.voted-up {
+    color: #00C853;
+}
+.post-score.voted-down {
+    color: #B71C1C;
 }
 .post-actions p {
     display: inline;
@@ -140,3 +179,19 @@ a.btn-circle {
 .action-view-link-reddit:active {
     background-color: #64B5F6;
 }
+/* Spinners */
+.spinner-global {
+    color: #424242;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 120px;
+    height: 120px;
+    margin: -60px 0 0 -60px;
+    -webkit-animation: spin 3s linear infinite;
+    -moz-animation: spin 3s linear infinite;
+    animation: spin 3s linear infinite;
+}
+@-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+@-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }

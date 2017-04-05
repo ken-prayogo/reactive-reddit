@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
-import Header from './../components/Header';
-import Post from './../components/Post';
-import reddit from './../services/reddit';
+import Header from '../components/Header';
+import Post from '../components/Post';
+import FilterMenu from '../components/FilterMenu';
+import Spinner from '../components/Spinner';
+import reddit from '../services/reddit';
 
 class App extends Component {
     /**
@@ -9,15 +11,31 @@ class App extends Component {
      */
     componentWillMount() {
         reddit.getPosts().then((posts) => {
-            this.setState({ posts });
+            this.setState({ posts, loading: false });
         });
     }
 
     state = {
         menuOpen: false,
         expandedPostId: null,
+        loading: true,
         posts: []
     };
+
+    getPosts = (subreddit, category) => {
+        this.setState({ loading: true });
+        reddit.getPosts(subreddit, category)
+            .then((posts) => {
+                this.setState({
+                    posts,
+                    loading: false
+                });
+            })
+            .catch((err) => {
+                console.log(err);
+                // alert(err);
+            });
+    }
 
     openMenu(e) {
         console.log('Open menu...');
@@ -56,6 +74,13 @@ class App extends Component {
         }
     }
 
+    renderLoading() {
+        if (this.state.loading) {
+            return <Spinner />;
+        }
+        return null;
+    }
+
     renderPosts() {
         return this.state.posts.map((child, index) => {
             const post = child.data;
@@ -71,6 +96,8 @@ class App extends Component {
         return (
             <div className="App">
                 <Header title="Reactive Reddit" onMenuClick={this.openMenu} onUserClick={this.openUserMenu} />
+                <FilterMenu onSubmit={this.getPosts} />
+                {this.renderLoading()}
                 <div className="Body">
                     {this.renderPosts()}
                 </div>
