@@ -18,7 +18,7 @@ const Post = ({ index, postData, actionHandler, expanded }) => {
                     <p className="post-title">{title}</p>
                     <PostDetails postData={postData} />
                     <PostActions userVote={userVote}
-                        onVoteClick={(upOrDown) => actionHandler.votePost(index, upOrDown)}
+                        onVoteClick={(dir) => actionHandler.votePost(index, dir)}
                         onExpandClick={() => actionHandler.expandPost(id)}
                         onHidePostContent={() => actionHandler.expandPost(null)}
                         bodyExpanded={expanded}

@@ -6,13 +6,14 @@ import moment from 'moment';
 moment().format();
 
 const reddit = {
-    VOTE_UP: 'up',
-    VOTE_DOWN: 'down',
+    VOTE_UP: 1,
+    VOTE_DOWN: -1,
+    VOTE_NEUTRAL: 0,
 
     getPosts: function (subreddit = config.api.subs.default, category = config.api.sub_category_default) {
         // ToDo: subreddit not handled
         return new Promise((resolve, reject) => {
-            const uri = `${config.api.subreddit_prefix}/${subreddit}/${category}.json`;
+            const uri = `${config.reddit.subreddit_prefix}/${subreddit}/${category}.json`;
             // const args = {
             //     method: 'GET',
             //     headers: {
@@ -39,6 +40,42 @@ const reddit = {
                     reject(err);
                 });
         });
+    },
+
+    votePost: function (postName, token, dir) {
+        return new Promise((resolve, reject) => {
+            const args = {
+                method: 'POST',
+                headers: {
+                    Authorization: 'bearer ' + token
+                }
+            };
+            fetch(`https://oauth.reddit.com/api/vote?id=${postName}&dir=${dir}&rank=2`, args)
+                .then(res => res.json())
+                .then((json) => resolve(json))
+                .catch(err => reject(err));
+        });
+    },
+
+    getUserInfo: function (token) {
+        return new Promise((resolve, reject) => {
+            const args = {
+                headers: {
+                    Authorization: 'bearer ' + token
+                }
+            };
+            fetch('https://oauth.reddit.com/api/v1/me', args)
+                .then(res => res.json())
+                .then((json) => resolve(json))
+                .catch(err => reject(err));
+        });
+    },
+
+    requestToken: function () {
+        const unique = new Date().getUTCMilliseconds();
+        const authString = `client_id=${config.api.credentials.client}&response_type=token&state=${unique}
+            &redirect_uri=${config.api.credentials.app_uri}&scope=${config.api.oauth.scopes}`;
+        window.location.href = 'https://www.reddit.com/api/v1/authorize?' + authString;
     },
 
     buildCustomProps: function (postData) {
@@ -71,8 +108,10 @@ const reddit = {
         if (type === 'text') {
             textHtml = { __html: this.decodeHtml(postData.selftext_html) };
         }
-        return { canExpand, type, isMedia, mediaPreviewUrl,
-            textHtml, userVote: null, timePosted };
+        return {
+            canExpand, type, isMedia, mediaPreviewUrl,
+            textHtml, userVote: this.VOTE_NEUTRAL, timePosted
+        };
     },
 
     isGif: function (postData) {
@@ -106,17 +145,6 @@ const reddit = {
         var txt = document.createElement("textarea");
         txt.innerHTML = html;
         return txt.value;
-    },
-
-    getVoteCount: function (vote) {
-        switch (vote) {
-            case this.VOTE_UP:
-                return 1;
-            case this.VOTE_DOWN:
-                return -1;
-            default:
-                return 0;
-        }
     },
 
     getTimePostedPhrase: function (created) {

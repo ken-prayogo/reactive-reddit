@@ -9,13 +9,15 @@
             0,
             "always"
         ],
-        "camelcase": "warn"
+        "camelcase": "warn",
+        "no-useless-escape": "off"
     },
     "globals": {
         "document": true,
         "console": true,
         "window": true,
         "fetch": true,
-        "Promise": true
+        "Promise": true,
+        "module": true
     }
 }

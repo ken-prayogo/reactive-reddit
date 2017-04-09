@@ -48,7 +48,7 @@ class FilterMenu extends Component {
                         {categories}
                     </select>
                 </div>
-                <button className="btn-filter-submit" onClick={this.onFilterSubmit}>Submit</button>
+                <button className="btn-standard btn-filter-submit" onClick={this.onFilterSubmit}>Refresh</button>
             </form>
         );
     }
