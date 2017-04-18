@@ -2,27 +2,38 @@ import React, { Component } from 'react';
 
 class PostBody extends Component {
 
-    state = {
-        ...this.props.postData.custom
-    };
-
     renderContent() {
-        if (this.state.isMedia) {
-            return <img className="post-preview-media" src={this.state.mediaPreviewUrl} alt="Not found" />;
-        } else if (this.state.type === 'text') {
-            return <div className="post-body-html" dangerouslySetInnerHTML={this.state.textHtml} />;
+        const { isMedia, mediaEmbed, mediaPreviewUrl, type, textHtml } = this.props.postData.custom;
+        if (isMedia) {
+            if (mediaEmbed) {
+                return (
+                    <div className="post-media-embed"
+                        dangerouslySetInnerHTML={mediaEmbed} />
+                );
+            }
+            return (
+                <img className="post-preview-media"
+                    src={mediaPreviewUrl}
+                    alt="Not found" />
+            );
+        } else if (type === 'text') {
+            return <div className="post-body-html" dangerouslySetInnerHTML={textHtml} />;
         } else {
             return null;
         }
     }
 
     render() {
+        if (!this.props.visible) {
+            return null;
+        }
         return (
-            <div className={`post-body ${!this.props.visible ? 'hidden' : ''}`}>
+            <div className="post-body">
                 {this.renderContent()}
             </div>
         );
     }
+
 }
 
 export default PostBody;

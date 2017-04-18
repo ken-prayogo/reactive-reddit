@@ -5,61 +5,76 @@ import FilterMenu from '../components/FilterMenu';
 import Spinner from '../components/Spinner';
 import UserMenu from '../components/UserMenu';
 import AlertDialog from '../components/common/AlertDialog';
+import SubDescription from '../components/SubDescription';
 import reddit from '../services/reddit';
 import utils from '../js/utils';
 import config from '../../config.json';
 
 class App extends Component {
-    /**
-     * Get posts on load
-     */
+
+    // Initialize state
+    constructor(props) {
+        super(props);
+        this.state = {
+            menuOpen: false,
+            expandedPostId: null,
+            loading: true,
+            accessToken: null,
+            tokenExpiration: 0,
+            user: null,
+            posts: [],
+            userMenuVisible: false,
+            alert: {
+                show: false,
+                title: '',
+                message: ''
+            },
+            currentSub: null,
+            currentSubCategory: null
+        };
+    }
+
+    // Initiation logic to determine errors, user logins, etc
     componentWillMount() {
         const url = window.location.href;
-        if (url.includes('error')) {
-            console.log(`Validation failed. ${utils.getParameterByName('error', url)}`);
-        } else {
-            reddit.getPosts()
-                .then((posts) => {
-                    this.setState({ posts, loading: false });
-                })
-                .catch(err => console.log(err));
-        }
-    }
-
-    componentDidMount() {
-        const url = window.location.href;
         if (url.includes('access_token')) {
+            // Access token received
             const accessToken = utils.getParameterByName('access_token');
             const tokenExpiration = utils.getParameterByName('expires_in');
-            this.setState({ accessToken, tokenExpiration }, () => {
-                reddit.getUserInfo(this.state.accessToken)
-                    .then((userData) => {
-                        this.setState({ user: userData });
-                    })
-                    .catch(err => console.log(err));
-            });
+            // Set the access token then get user info and user Front Page
+            this.setState({ accessToken, tokenExpiration });
+        } else {
+            if (url.includes('error')) {
+                this.showAlert('Validation Failed', `Your login could not be completed. Error: ${utils.getParameterByName('error', url)}`);
+            }
+            // Not logged in
+            reddit.getSubredditPosts()
+                .then((posts) => {
+                    this.setState({
+                        posts,
+                        loading: false,
+                        currentSub: config.api.subs.default
+                    });
+                })
+                .catch(err => this.showAlert('Post Retrieval Failed', `Whoops! Something went wrong... Error: ${err}`));
         }
     }
 
-    state = {
-        menuOpen: false,
-        expandedPostId: null,
-        loading: true,
-        accessToken: null,
-        tokenExpiration: 0,
-        user: null,
-        posts: [],
-        userMenuVisible: false,
-        alert: {
-            show: false,
-            title: '',
-            message: ''
+    // After initial logic, load up any user data
+    componentDidMount() {
+        if (this.state.accessToken) {
+            this.getUserData();
         }
-    };
+    }
 
+    /**
+     * Gets a list of posts from a subreddit
+     * @param {string} subreddit - The sub
+     * @param {string} category - Hot, Rising, New, etc
+     */
     getPosts = (subreddit, category) => {
         this.setState({ loading: true });
-        reddit.getPosts(subreddit, category)
+        reddit.getSubredditPosts(subreddit, category, this.state.accessToken)
             .then((posts) => {
                 this.setState({ posts });
             })
@@ -69,11 +84,31 @@ class App extends Component {
                     err.message + '. Your search might be invalid.'
                 );
             })
-            .then(() => { this.setState({ loading: false }); });
+            .then(() => {
+                this.setState({
+                    loading: false,
+                    currentSub: subreddit,
+                    currentSubCategory: category
+                });
+            });
     }
 
-    openMenu(e) {
-        console.log('Open menu...');
+    // Gets the user's data, preferences, and Frontpage posts list
+    getUserData = () => {
+        reddit.getUserInfo(this.state.accessToken)
+            .then((user) => {
+                this.setState({ user });
+                return reddit.getUserFrontPage(this.state.accessToken);
+            })
+            .then((posts) => {
+                this.setState({
+                    posts,
+                    loading: false,
+                    currentSub: config.api.subs.default_logged_in,
+                    currentSubCategory: config.api.sub_category_default
+                });
+            })
+            .catch(err => this.showAlert('Post Retrieval Failed', `Whoops! Something went wrong... Error: ${err}`));
     }
 
     /**
@@ -84,15 +119,26 @@ class App extends Component {
         this.setState({ userMenuVisible: doDisplay });
     }
 
+    // Redirect to Reddit to request an access token
     signIn() {
         reddit.requestToken();
     }
 
-    signOut() {
-        window.location.href = config.app.url;
+    // Resets any state related to the user
+    signOut = () => {
+        this.setState({
+            user: null,
+            accessToken: null
+        }, () => {
+            this.getPosts(this.state.currentSub, this.state.currentSubCategory);
+        });
     }
 
-    // TODO: Show Alert Dialog with options
+    /**
+     * Alert pop-up trigger
+     * @param {!string} title
+     * @param {!string} message
+     */
     showAlert = (title, message) => {
         const alert = { ...this.state.alert };
         alert.title = title;
@@ -101,14 +147,22 @@ class App extends Component {
         this.setState({ alert });
     }
 
+    // Closes an alert dialog
     dismissAlert = () => {
         const alert = { ...this.state.alert };
         alert.show = false;
         this.setState({ alert });
     }
 
+    // A set of "actions" performed on a post
     actionHandler = {
 
+        /**
+         * Vote on a post. Will immediately show feedback, can undo previous
+         * votes, and will revert feedback if the vote API request fails
+         * @param {!int} index - The index of the Post to vote on
+         * @param {!int} dir - The direction of the vote (1,0,-1)
+         */
         votePost: (index, dir) => {
             if (this.state.user === null) {
                 this.showAlert('Action Not Allowed', 'You must be logged in to vote!');
@@ -118,28 +172,37 @@ class App extends Component {
             const newPosts = [
                 ...this.state.posts
             ];
-            let currentUserVote = newPosts[index].data.custom.userVote;
+            let oldUserVote = newPosts[index].data.custom.userVote;
             // Revert score first (if previously clicked)
-            newPosts[index].data.score -= currentUserVote;
+            newPosts[index].data.score -= oldUserVote;
 
             // Now determine the vote after-click
             // Logic Note: If the same vote is clicked twice, cancel the vote
-            currentUserVote = currentUserVote === dir ? reddit.VOTE_NEUTRAL : dir;
+            let currentUserVote = oldUserVote === dir ? reddit.VOTE_NEUTRAL : dir;
             newPosts[index].data.custom.userVote = currentUserVote;
 
-            // Update score
+            // Update score. Let State update first for UI feedback to kick in
             newPosts[index].data.score += currentUserVote;
+            this.setState({ posts: newPosts });
 
             // POST request
             reddit.votePost(
                 this.state.posts[index].data.name,
                 this.state.accessToken,
                 currentUserVote
-            ).then(() => {
+            ).catch(err => {
+                this.showAlert('Vote Failed', `Whoops! Your vote did not get through. Error: ${err}`);
+                // If vote failed, revert vote
+                newPosts[index].data.score -= currentUserVote;
+                newPosts[index].data.custom.userVote -= currentUserVote;
                 this.setState({ posts: newPosts });
-            }).catch(err => console.log(err));
+            });
         },
 
+        /**
+         * Expands specified post
+         * @param {!string} postId
+         */
         expandPost: (postId) => {
             this.setState({
                 expandedPostId: postId
@@ -148,6 +211,7 @@ class App extends Component {
 
     }
 
+    // Conditional rendering for the spinner
     renderLoading() {
         if (this.state.loading) {
             return <Spinner />;
@@ -155,7 +219,11 @@ class App extends Component {
         return null;
     }
 
-    renderPosts() {
+    // Conditional rendering for posts
+    renderPosts = () => {
+        if (this.state.posts.length === 0) {
+            return null;
+        }
         return this.state.posts.map((child, index) => {
             const post = child.data;
             return (
@@ -169,22 +237,28 @@ class App extends Component {
     render() {
         return (
             <div className="App">
-                <Header title="Reactive Reddit" onMenuClick={this.openMenu} onUserHover={() => this.displayUserMenu(true)} />
+                <Header title="Reactive Reddit" onUserHover={() => this.displayUserMenu(true)} />
                 <UserMenu visible={this.state.userMenuVisible}
                     user={this.state.user}
                     isLoggedIn={this.state.user !== null}
                     onHoverLeave={() => this.displayUserMenu(false)}
                     onSignIn={this.signIn}
                     onSignOut={this.signOut} />
-                <FilterMenu onSubmit={this.getPosts} />
-                {this.renderLoading()}
-                <div className="Body">
-                    {this.renderPosts()}
+                <FilterMenu onSubmit={this.getPosts}
+                    userData={this.state.user}
+                    currentSub={this.state.currentSub}
+                    currentSubCategory={this.state.currentSubCategory} />
+                <div className="content-wrap">
+                    <SubDescription currentSub={this.state.currentSub} user={this.state.user} />
+                    <div className="Body">
+                        {this.renderPosts()}
+                    </div>
                 </div>
                 <AlertDialog show={this.state.alert.show}
                     title={this.state.alert.title}
                     message={this.state.alert.message}
                     onDismiss={this.dismissAlert} />
+                {this.renderLoading()}
             </div>
         );
     }

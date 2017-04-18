@@ -1,12 +1,23 @@
 import React, { Component } from 'react';
 import config from '../../config.json';
 
+const subredditInputListName = 'subreddit-list';
+
 class FilterMenu extends Component {
 
-    state = {
-        subreddit: '',
-        category: config.api.sub_category_default,
-        subDefault: config.api.subs.default
+    constructor(props) {
+        super(props);
+        this.state = {
+            subreddit: '',
+            category: config.api.sub_category_default,
+            subDefault: config.api.subs.default
+        };
+    }
+
+    componentWillReceiveProps(nextProps) {
+        if (nextProps.currentSub) {
+            this.setState({ subreddit: nextProps.currentSub });
+        }
     }
 
     onSubredditChange = (e) => {
@@ -29,6 +40,26 @@ class FilterMenu extends Component {
         );
     }
 
+    onInputClick = (e) => {
+        e.target.select();
+    }
+
+    renderInputHelpList = () => {
+        let list = [];
+        const options = [];
+        if (this.props.userData !== null) {
+            list = this.props.userData.subs;
+            for (const item of list) {
+                options.push(<option key={item} value={item} />);
+            }
+        }
+        return (
+            <datalist id={subredditInputListName}>
+                {options}
+            </datalist>
+        );
+    }
+
     render() {
         const categories = [];
         for (const key of Object.keys(config.api.sub_categories)) {
@@ -40,7 +71,11 @@ class FilterMenu extends Component {
             <form className="menu-filter">
                 <div className="filter-subreddit">
                     <label>Subreddit: r/</label>
-                    <input placeholder={this.state.subDefault} value={this.state.subreddit} onChange={this.onSubredditChange} />
+                    <input value={this.state.subreddit}
+                        onChange={this.onSubredditChange}
+                        list={subredditInputListName}
+                        onClick={this.onInputClick} />
+                    {this.renderInputHelpList()}
                 </div>
                 <div className="filter-category">
                     <label>Category:</label>

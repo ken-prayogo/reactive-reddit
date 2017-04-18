@@ -1,34 +1,51 @@
-import React from 'react';
+import React, { Component } from 'react';
 import config from '../../config.json';
 import PostActions from './PostActions';
 import PostDetails from './PostDetails';
 import PostBody from './PostBody';
-// import { FaQuestion } from 'react-icons/lib/fa';
-// TODO: To handle missing img, use onError (transform Post into Component class and use cond.rendering)
+import altThumbnail from '../images/Reddit-icon.png';
 
-const Post = ({ index, postData, actionHandler, expanded }) => {
-    const { title, thumbnail, id, permalink, custom } = postData;
-    const { userVote } = custom;
-    const redditLink = config.reddit.url + permalink;
-    return (
-        <div className="post" data-id={id}>
-            <div className="post-head">
-                <img className="post-thumbnail" src={thumbnail} alt="None" />
-                <div className="post-section">
-                    <p className="post-title">{title}</p>
-                    <PostDetails postData={postData} />
-                    <PostActions userVote={userVote}
-                        onVoteClick={(dir) => actionHandler.votePost(index, dir)}
-                        onExpandClick={() => actionHandler.expandPost(id)}
-                        onHidePostContent={() => actionHandler.expandPost(null)}
-                        bodyExpanded={expanded}
-                        link={postData.url}
-                        redditLink={redditLink} />
+class Post extends Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            thumbnail: this.props.postData.thumbnail
+        };
+    }
+
+    // Swap the thumbnail's src to a placeholder image if not found
+    swapThumbSrc = () => {
+        this.setState({
+            thumbnail: altThumbnail
+        });
+    }
+
+    render() {
+        const { index, actionHandler, expanded, postData } = this.props;
+        const { title, id, permalink, custom } = postData;
+        const redditLink = config.reddit.url + permalink;
+        return (
+            <div className="post" data-id={id}>
+                <div className="post-head">
+                    <img className="post-thumbnail" src={this.state.thumbnail} alt="None" onError={this.swapThumbSrc} />
+                    <div className="post-section">
+                        <p className="post-title">{title}</p>
+                        <PostDetails postData={postData} />
+                        <PostActions customData={custom}
+                            onVoteClick={(dir) => actionHandler.votePost(index, dir)}
+                            onExpandClick={() => actionHandler.expandPost(id)}
+                            onHidePostContent={() => actionHandler.expandPost(null)}
+                            bodyExpanded={expanded}
+                            link={postData.url}
+                            redditLink={redditLink} />
+                    </div>
                 </div>
+                <PostBody visible={expanded} postData={postData} />
             </div>
-            <PostBody visible={expanded} postData={postData} />
-        </div>
-    );
-};
+        );
+    }
+
+}
 
 export default Post;
