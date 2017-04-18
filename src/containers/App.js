@@ -45,7 +45,10 @@ class App extends Component {
             this.setState({ accessToken, tokenExpiration });
         } else {
             if (url.includes('error')) {
-                this.showAlert('Validation Failed', `Your login could not be completed. Error: ${utils.getParameterByName('error', url)}`);
+                this.showAlert(
+                    'Validation Failed',
+                    `Your login could not be completed. Error: ${utils.getParameterByName('error', url)}`
+                );
             }
             // Not logged in
             reddit.getSubredditPosts()
@@ -56,7 +59,9 @@ class App extends Component {
                         currentSub: config.api.subs.default
                     });
                 })
-                .catch(err => this.showAlert('Post Retrieval Failed', `Whoops! Something went wrong... Error: ${err}`));
+                .catch(err => {
+                    this.showAlert('Post Retrieval Failed', `Whoops! Something went wrong... Error: ${err}`);
+                });
         }
     }
 
@@ -79,9 +84,11 @@ class App extends Component {
                 this.setState({ posts });
             })
             .catch((err) => {
+                const title = err.name ? `(${err.name})` : '';
+                const msg = err.message ? err.message + '. ' : '';
                 this.showAlert(
-                    `Post Fetch Failed (${err.name})`,
-                    err.message + '. Your search might be invalid.'
+                    `Post Fetch Failed ${title}`,
+                    msg + 'Your search might be invalid.'
                 );
             })
             .then(() => {
@@ -212,7 +219,7 @@ class App extends Component {
     }
 
     // Conditional rendering for the spinner
-    renderLoading() {
+    renderSpinner() {
         if (this.state.loading) {
             return <Spinner />;
         }
@@ -258,7 +265,7 @@ class App extends Component {
                     title={this.state.alert.title}
                     message={this.state.alert.message}
                     onDismiss={this.dismissAlert} />
-                {this.renderLoading()}
+                {this.renderSpinner()}
             </div>
         );
     }
