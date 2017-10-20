@@ -251,11 +251,11 @@ class App extends Component {
                     onHoverLeave={() => this.displayUserMenu(false)}
                     onSignIn={this.signIn}
                     onSignOut={this.signOut} />
-                <FilterMenu onSubmit={this.getPosts}
-                    userData={this.state.user}
-                    currentSub={this.state.currentSub}
-                    currentSubCategory={this.state.currentSubCategory} />
                 <div className="content-wrap">
+                    <FilterMenu onSubmit={this.getPosts}
+                        userData={this.state.user}
+                        currentSub={this.state.currentSub}
+                        currentSubCategory={this.state.currentSubCategory} />
                     <SubDescription currentSub={this.state.currentSub} user={this.state.user} />
                     <div className="Body">
                         {this.renderPosts()}
