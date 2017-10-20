@@ -69,6 +69,7 @@ const reddit = {
                     }
                     for (const post of json.data.children) {
                         post.data.custom = this.buildCustomProps(post.data);
+                        post.data.title = this.decodeHtml(post.data.title); // Decode special characters
                     }
                     resolve(json.data.children);
                 })
@@ -230,11 +231,12 @@ const reddit = {
      * Videos can either be Gifs or embedded...
      */
     getPostClassification: function (postData) {
+        if (this.isMediaEmbed(postData)) {
+            return 'media-embed';
+        }
         switch (postData.post_hint) {
             case 'link':
-                if (this.isMediaEmbed(postData)) {
-                    return 'media-embed';
-                } else if (this.isGif(postData) || this.isMediaPreview(postData)) {
+                if (this.isGif(postData) || this.isMediaPreview(postData)) {
                     return 'media';
                 }
                 return 'link';
@@ -243,9 +245,6 @@ const reddit = {
             case 'image':
             case 'rich:video':
             case 'video':
-                if (this.isMediaEmbed(postData)) {
-                    return 'media-embed';
-                }
                 return 'media';
             default:
                 return 'text';
@@ -268,9 +267,9 @@ const reddit = {
         return postData.url.indexOf('.gif') > -1 || hasGifLink;
     },
 
-    // Determines if the a media preview is enabled
+    // Determines if the a media preview is enabled (imgur is a little different)
     isMediaPreview: function (postData) {
-        return postData.preview.enabled;
+        return postData.preview.enabled || postData.domain.indexOf('imgur') > -1;
     },
 
     // Determines if there is an embedded media HTML we can use

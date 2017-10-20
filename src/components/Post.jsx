@@ -21,6 +21,16 @@ class Post extends Component {
         });
     }
 
+    // Handle clicking a post's thumbnail
+    handleThumbnailClick = (id, customData) => {
+        if (customData.canExpand) {
+            this.props.actionHandler.expandPost(id);
+        } else {
+            var link = document.getElementById(id + "-title-link");
+            link.click();
+        }
+    }
+
     render() {
         const { index, actionHandler, expanded, postData } = this.props;
         const { title, id, permalink, custom } = postData;
@@ -28,9 +38,13 @@ class Post extends Component {
         return (
             <div className="post" data-id={id}>
                 <div className="post-head">
-                    <img className="post-thumbnail" src={this.state.thumbnail} alt="None" onError={this.swapThumbSrc} />
+                    <img className="post-thumbnail" src={this.state.thumbnail} alt="None"
+                        onClick={() => this.handleThumbnailClick(id, custom)}
+                        onError={this.swapThumbSrc} />
                     <div className="post-section">
-                        <p className="post-title">{title}</p>
+                        <a id={id + "-title-link"} href={postData.url} target="_blank">
+                            <p className="post-title">{title}</p>
+                        </a>
                         <PostDetails postData={postData} />
                         <PostActions customData={custom}
                             onVoteClick={(dir) => actionHandler.votePost(index, dir)}

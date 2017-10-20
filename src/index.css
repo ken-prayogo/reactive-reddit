@@ -5,6 +5,9 @@ body {
 p {
     margin: 0;
 }
+a {
+    text-decoration: none;
+}
 .App {
     font-family: 'sans-RobotoDraft', 'Helvetica Neue', Helvetica, Arial;
 }
@@ -116,6 +119,7 @@ p {
     min-width: 140px;
     height: auto;
     max-height: 135px;
+    cursor: pointer;
 }
 .post-title {
     margin-top: 10px;
@@ -169,6 +173,12 @@ p {
     margin: 10px 0;
     color: #424242;
     line-height: 1.4;
+}
+.post-body-html {
+    border: 2px solid #FF9800;
+    padding: 3px 10px;
+    background-color: #fff;
+    border-radius: 5px;
 }
 .post-preview-media {
     max-width: 50%;
