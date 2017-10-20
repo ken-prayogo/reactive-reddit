@@ -87,6 +87,8 @@ a {
 /* CONTENTS */
 .content-wrap {
     padding: 10px;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 .sub-description {
     padding: 5px;

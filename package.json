@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "author": "Ken Prayogo",
   "private": true,
+  "homepage": "https://ken-prayogo.github.io/reactive-reddit",
   "devDependencies": {
     "eslint": "^3.17.1",
     "eslint-config-react": "^1.1.7",
