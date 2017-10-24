@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import Waypoint from 'react-waypoint';
 import Header from '../components/Header';
 import Post from '../components/Post';
 import FilterMenu from '../components/FilterMenu';
@@ -23,6 +24,7 @@ class App extends Component {
             tokenExpiration: 0,
             user: null,
             posts: [],
+            lastPost: null,
             userMenuVisible: false,
             alert: {
                 show: false,
@@ -52,9 +54,10 @@ class App extends Component {
             }
             // Not logged in
             reddit.getSubredditPosts()
-                .then((posts) => {
+                .then(({ children, after }) => {
                     this.setState({
-                        posts,
+                        posts: children,
+                        lastPost: after,
                         loading: false,
                         currentSub: config.api.subs.default
                     });
@@ -80,16 +83,14 @@ class App extends Component {
     getPosts = (subreddit, category) => {
         this.setState({ loading: true });
         reddit.getSubredditPosts(subreddit, category, this.state.accessToken)
-            .then((posts) => {
-                this.setState({ posts });
+            .then(({ children, after }) => {
+                this.setState({
+                    posts: children,
+                    lastPost: after
+                });
             })
             .catch((err) => {
-                const title = err.name ? `(${err.name})` : '';
-                const msg = err.message ? err.message + '. ' : '';
-                this.showAlert(
-                    `Post Fetch Failed ${title}`,
-                    msg + 'Your search might be invalid.'
-                );
+                this.handlePostError(err);
             })
             .then(() => {
                 this.setState({
@@ -98,6 +99,40 @@ class App extends Component {
                     currentSubCategory: category
                 });
             });
+    }
+
+    getMorePosts = () => {
+        const { currentSub, currentSubCategory, accessToken, lastPost, posts } = this.state;
+        if (posts.length === 0) return;
+        const args = {
+            after: lastPost
+        };
+
+        this.setState({ loading: true });
+        reddit.getSubredditPosts(currentSub, currentSubCategory, accessToken, args)
+            .then(({ children, after }) => {
+                this.setState({
+                    posts: [...posts, ...children],
+                    lastPost: after
+                });
+            })
+            .catch((err) => {
+                this.handlePostError(err);
+            })
+            .then(() => {
+                this.setState({
+                    loading: false
+                });
+            });
+    }
+
+    handlePostError = (err) => {
+        const title = err.name ? `(${err.name})` : '';
+        const msg = err.message ? err.message + '. ' : '';
+        this.showAlert(
+            `Post Fetch Failed ${title}`,
+            msg + 'Your search might be invalid.'
+        );
     }
 
     // Gets the user's data, preferences, and Frontpage posts list
@@ -218,14 +253,6 @@ class App extends Component {
 
     }
 
-    // Conditional rendering for the spinner
-    renderSpinner() {
-        if (this.state.loading) {
-            return <Spinner />;
-        }
-        return null;
-    }
-
     // Conditional rendering for posts
     renderPosts = () => {
         if (this.state.posts.length === 0) {
@@ -261,11 +288,12 @@ class App extends Component {
                         {this.renderPosts()}
                     </div>
                 </div>
+                <Spinner visible={this.state.loading} />
+                <Waypoint onEnter={this.getMorePosts} />
                 <AlertDialog show={this.state.alert.show}
                     title={this.state.alert.title}
                     message={this.state.alert.message}
                     onDismiss={this.dismissAlert} />
-                {this.renderSpinner()}
             </div>
         );
     }

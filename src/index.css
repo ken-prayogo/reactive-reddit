@@ -21,6 +21,7 @@ a {
     padding: 20px 0;
     position: relative;
     text-align: center;
+    box-shadow: 0 3px 6px 0 rgba(0, 0, 0, 0.26);
 }
 .header-title {
     color: #fff;
@@ -44,11 +45,11 @@ a {
     position: absolute;
     right: 10px;
     top: 65px;
-    background: #42A5F5;
+    background: #90CAF9;
     padding: 20px 25px;
-    border: 1px solid #212121;
     border-radius: 3px;
     text-align: center;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.26);
 }
 .menu-user h3, .menu-user p {
     margin-top: 0;
@@ -64,6 +65,7 @@ a {
     background: #FFD54F;
     font-size: 17px;
     border-radius: 5px;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.26);
 }
 .menu-filter input, .menu-filter select {
     font-size: 17px;
@@ -106,6 +108,7 @@ a {
     border-radius: 3px;
     padding: 10px;
     margin-bottom: 10px;
+    box-shadow: 0 2px 6px 0 rgba(0, 0, 0, 0.26);
 }
 .post-head {
     display: inline-flex;
@@ -212,13 +215,17 @@ button {
     cursor: pointer;
     font-size: 25px;
     border-radius: 25px;
-    border-width: 1px;
+    border-width: 0;
     border-style: double;
     color: #fff;
     background-color: black;
     padding: 3px 8px 7px 8px;
     outline: none;
     margin-right: 10px;
+    box-shadow: 0 2px 3px 0 rgba(0, 0, 0, 0.26);
+}
+.btn-circle:hover {
+    box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.26);
 }
 a.btn-circle {
     border: none;
@@ -263,6 +270,7 @@ a.btn-circle {
     padding: 20px 25px;
     border: 2px solid #BDBDBD;
     border-radius: 4px;
+    box-shadow: 0 3px 5px 0 rgba(0, 0, 0, 0.26);
 }
 .dialog-title {
     margin-top: 0;
@@ -280,7 +288,7 @@ a.btn-circle {
 /* Spinners */
 .spinner-global {
     color: #424242;
-    position: absolute;
+    position: fixed;
     top: 50%;
     left: 50%;
     width: 120px;

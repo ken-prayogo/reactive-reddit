@@ -1,8 +1,8 @@
 import React from 'react';
 import FaSpinner from 'react-icons/lib/fa/spinner';
 
-const Spinner = () => (
-    <FaSpinner className="spinner-global" />
+const Spinner = ({ visible }) => (
+    <FaSpinner className={"spinner-global" + (visible ? '' : ' hidden')} />
 );
 
 export default Spinner;

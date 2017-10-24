@@ -20,14 +20,24 @@ const reddit = {
      * @param {string} subreddit
      * @param {string} category
      * @param {string} token - In case oauth is needed (e.g. Frontpage)
+     * @param {args} params
      * @returns object
      */
-    getSubredditPosts: function (subreddit = config.api.subs.default, category = config.api.sub_category_default, token = null) {
+    getSubredditPosts: function (subreddit = config.api.subs.default, category = config.api.sub_category_default, token = null, args = {}) {
+        category = category || config.api.sub_category_default;
         // Detect "frontpage"
         if (subreddit.toUpperCase() === subFrontPage && token) {
             return this.getUserFrontPage(token);
         }
-        const uri = `${config.reddit.subreddit_prefix}/${subreddit}/${category}.json`;
+        let uri = `${config.reddit.subreddit_prefix}/${subreddit}/${category}.json`;
+        let i = 0;
+        for (const key in args) {
+            // ? or &
+            if (i === 0) { uri += '?'; }
+            uri += '&';
+            uri += `${key}=${args[key]}`;
+            i++;
+        }
         return this.getPosts(uri);
     },
 
@@ -71,7 +81,7 @@ const reddit = {
                         post.data.custom = this.buildCustomProps(post.data);
                         post.data.title = this.decodeHtml(post.data.title); // Decode special characters
                     }
-                    resolve(json.data.children);
+                    resolve(json.data);
                 })
                 .catch((err) => {
                     reject(err);
