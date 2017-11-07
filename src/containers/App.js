@@ -140,11 +140,13 @@ class App extends Component {
         reddit.getUserInfo(this.state.accessToken)
             .then((user) => {
                 this.setState({ user });
+                // TODO: Page 2 for frontpage broken
                 return reddit.getUserFrontPage(this.state.accessToken);
             })
-            .then((posts) => {
+            .then(({ children, after }) => {
                 this.setState({
-                    posts,
+                    posts: children,
+                    lastPost: after,
                     loading: false,
                     currentSub: config.api.subs.default_logged_in,
                     currentSubCategory: config.api.sub_category_default
