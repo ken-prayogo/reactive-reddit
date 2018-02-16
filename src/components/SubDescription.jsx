@@ -2,12 +2,11 @@ import React from 'react';
 import config from '../../config.json';
 
 const SubDescription = ({ currentSub, user }) => {
-    let description = null;
-    let isFrontPage = false;
     // Add custom verbage for a user's Frontpage vs a subreddit
-    if (currentSub) {
-        isFrontPage = currentSub.toUpperCase() === config.api.subs.default_logged_in.toUpperCase();
-        description = <p>You are viewing {user && isFrontPage ? 'your ' : 'r/'}{currentSub}</p>;
+    let isFrontPage = !currentSub;
+    let description = <p>You are viewing r/{currentSub ? currentSub : config.api.subs.default}</p>;
+    if (user && isFrontPage) {
+        description = <p>You are viewing your Frontpage</p>;
     }
     return (
         <div className="sub-description">

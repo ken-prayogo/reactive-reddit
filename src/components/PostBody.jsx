@@ -13,7 +13,7 @@ class PostBody extends Component {
             }
             return (
                 <img className="post-preview-media"
-                    src={mediaPreviewUrl}
+                    src={mediaPreviewUrl ? this.decodeHtmlEntities(mediaPreviewUrl) : ''}
                     alt="Not found" />
             );
         } else if (type === 'text') {
@@ -21,6 +21,10 @@ class PostBody extends Component {
         } else {
             return null;
         }
+    }
+
+    decodeHtmlEntities(str) {
+        return str.replace('&amp;', '&');
     }
 
     render() {

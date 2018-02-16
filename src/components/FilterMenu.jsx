@@ -9,15 +9,13 @@ class FilterMenu extends Component {
         super(props);
         this.state = {
             subreddit: '',
-            category: config.api.sub_category_default,
-            subDefault: config.api.subs.default
+            category: '',
+            subDefault: null
         };
     }
 
     componentWillReceiveProps(nextProps) {
-        if (nextProps.currentSub) {
-            this.setState({ subreddit: nextProps.currentSub });
-        }
+        this.setState({ subreddit: nextProps.currentSub ? nextProps.currentSub : '' });
     }
 
     onSubredditChange = (e) => {

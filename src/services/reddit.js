@@ -3,10 +3,9 @@ import config from './../../config';
 import moment from 'moment';
 moment().format();
 
-// Shorten reference
+// Shorten references
+const subDefault = config.api.subs.default;
 const urlOauth = config.reddit.oauth_url;
-// Variables
-const subFrontPage = 'FRONTPAGE';
 
 const reddit = {
 
@@ -17,17 +16,20 @@ const reddit = {
 
     /**
      * Get posts in a given subreddit with a specified category
-     * @param {string} subreddit
+     * @param {string|null} subreddit
      * @param {string} category
      * @param {string} token - In case oauth is needed (e.g. Frontpage)
      * @param {args} params
      * @returns object
      */
-    getSubredditPosts: function (subreddit = config.api.subs.default, category = config.api.sub_category_default, token = null, args = {}) {
+    getSubredditPosts: function (subreddit, category = config.api.sub_category_default, token = null, args = {}) {
         category = category || config.api.sub_category_default;
-        // Detect "frontpage"
-        if (subreddit.toUpperCase() === subFrontPage && token) {
-            return this.getUserFrontPage(token);
+        // Return Frontpage if blank
+        if (!subreddit && token) {
+            return this.getUserFrontPage(token, args.after);
+        }
+        else if (!subreddit) {
+            subreddit = subDefault;
         }
         let uri = `${config.reddit.subreddit_prefix}/${subreddit}/${category}.json`;
         let i = 0;
@@ -46,14 +48,18 @@ const reddit = {
      * @param {string} token - The access token
      * @returns object
      */
-    getUserFrontPage: function (token) {
+    getUserFrontPage: function (token, lastPost = null) {
         const args = {
             method: 'GET',
             headers: {
                 Authorization: 'bearer ' + token
             }
         };
-        return this.getPosts(urlOauth, args);
+        let uri = urlOauth;
+        if (lastPost) {
+            uri += `?after=${lastPost}`;
+        }
+        return this.getPosts(uri, args);
     },
 
     /**
@@ -65,6 +71,7 @@ const reddit = {
      */
     getPosts: function (uri, args = { method: 'GET' }) {
         return new Promise((resolve, reject) => {
+            // console.log(uri);
             fetch(uri, args)
                 .then((res) => {
                     if (res.ok) {
@@ -81,6 +88,7 @@ const reddit = {
                         post.data.custom = this.buildCustomProps(post.data);
                         post.data.title = this.decodeHtml(post.data.title); // Decode special characters
                     }
+                    // console.log(json.data);
                     resolve(json.data);
                 })
                 .catch((err) => {

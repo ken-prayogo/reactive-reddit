@@ -20,6 +20,7 @@ class App extends Component {
             menuOpen: false,
             expandedPostId: null,
             loading: true,
+            loadingMore: false,
             accessToken: null,
             tokenExpiration: 0,
             user: null,
@@ -108,7 +109,7 @@ class App extends Component {
             after: lastPost
         };
 
-        this.setState({ loading: true });
+        this.setState({ loadingMore: true });
         reddit.getSubredditPosts(currentSub, currentSubCategory, accessToken, args)
             .then(({ children, after }) => {
                 this.setState({
@@ -121,7 +122,7 @@ class App extends Component {
             })
             .then(() => {
                 this.setState({
-                    loading: false
+                    loadingMore: false
                 });
             });
     }
@@ -148,8 +149,8 @@ class App extends Component {
                     posts: children,
                     lastPost: after,
                     loading: false,
-                    currentSub: config.api.subs.default_logged_in,
-                    currentSubCategory: config.api.sub_category_default
+                    currentSub: null,
+                    currentSubCategory: null
                 });
             })
             .catch(err => this.showAlert('Post Retrieval Failed', `Whoops! Something went wrong... Error: ${err}`));
@@ -174,7 +175,7 @@ class App extends Component {
             user: null,
             accessToken: null
         }, () => {
-            this.getPosts(this.state.currentSub, this.state.currentSubCategory);
+            this.getPosts(null);
         });
     }
 
@@ -291,6 +292,7 @@ class App extends Component {
                     </div>
                 </div>
                 <Spinner visible={this.state.loading} />
+                <Spinner visible={this.state.loadingMore} isGlobal={false} />
                 <Waypoint onEnter={this.getMorePosts} />
                 <AlertDialog show={this.state.alert.show}
                     title={this.state.alert.title}

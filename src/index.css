@@ -298,6 +298,16 @@ a.btn-circle {
     -moz-animation: spin 3s linear infinite;
     animation: spin 3s linear infinite;
 }
+.spinner {
+    color: #424242;
+    position: relative;
+    margin: 0 50% 0 50%;
+    width: 70px;
+    height: 70px;
+    -webkit-animation: spin 3s linear infinite;
+    -moz-animation: spin 3s linear infinite;
+    animation: spin 3s linear infinite;
+}
 @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
 @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
