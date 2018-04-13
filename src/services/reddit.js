@@ -6,6 +6,7 @@ moment().format();
 // Shorten references
 const subDefault = config.api.subs.default;
 const urlOauth = config.reddit.oauth_url;
+const testMode = true;
 
 const reddit = {
 
@@ -176,8 +177,9 @@ const reddit = {
     // Redirect to Reddit to request an access token
     requestToken: function () {
         const unique = new Date().getUTCMilliseconds();
-        const authString = `client_id=${config.api.credentials.client}&response_type=token&state=${unique}
-            &redirect_uri=${config.api.credentials.app_uri}&scope=${config.api.oauth.scopes}`;
+        const { client, app_uri } = testMode ? config.api.credentialsTest : config.api.credentials;
+        const authString = `client_id=${client}&response_type=token&state=${unique}
+            &redirect_uri=${app_uri}&scope=${config.api.oauth.scopes}`;
         window.location.href = 'https://www.reddit.com/api/v1/authorize?' + authString;
     },
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import config from '../../config.json';
+import { ThemeContext } from './ThemeContext';
 
 const SubDescription = ({ currentSub, user }) => {
     // Add custom verbage for a user's Frontpage vs a subreddit
@@ -9,9 +10,13 @@ const SubDescription = ({ currentSub, user }) => {
         description = <p>You are viewing your Frontpage</p>;
     }
     return (
-        <div className="sub-description">
-            {description}
-        </div>
+        <ThemeContext.Consumer>
+        {theme => (
+            <div className={`sub-description ${theme}`}>
+                {description}
+            </div>
+        )}
+        </ThemeContext.Consumer>
     );
 };
 export default SubDescription;

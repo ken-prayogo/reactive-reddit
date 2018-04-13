@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import config from '../../config.json';
+import ThemedButton from './common/ThemedButton';
 
 const subredditInputListName = 'subreddit-list';
 
@@ -81,7 +82,7 @@ class FilterMenu extends Component {
                         {categories}
                     </select>
                 </div>
-                <button className="btn-standard btn-filter-submit" onClick={this.onFilterSubmit}>Refresh</button>
+                <ThemedButton onClick={this.onFilterSubmit}>Get Posts</ThemedButton>
             </form>
         );
     }

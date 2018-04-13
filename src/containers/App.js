@@ -10,6 +10,7 @@ import SubDescription from '../components/SubDescription';
 import reddit from '../services/reddit';
 import utils from '../js/utils';
 import config from '../../config.json';
+import { ThemeContext, themes } from '../components/ThemeContext';
 
 class App extends Component {
 
@@ -33,7 +34,8 @@ class App extends Component {
                 message: ''
             },
             currentSub: null,
-            currentSubCategory: null
+            currentSubCategory: null,
+            theme: themes.light
         };
     }
 
@@ -252,6 +254,12 @@ class App extends Component {
             this.setState({
                 expandedPostId: postId
             });
+        },
+
+        changeTheme: () => {
+            this.setState({
+                theme: this.state.theme === themes.light ? themes.dark : themes.light
+            });
         }
 
     }
@@ -273,32 +281,40 @@ class App extends Component {
 
     render() {
         return (
-            <div className="App">
-                <Header title="Reactive Reddit" onUserHover={() => this.displayUserMenu(true)} />
-                <UserMenu visible={this.state.userMenuVisible}
-                    user={this.state.user}
-                    isLoggedIn={this.state.user !== null}
-                    onHoverLeave={() => this.displayUserMenu(false)}
-                    onSignIn={this.signIn}
-                    onSignOut={this.signOut} />
-                <div className="content-wrap">
-                    <FilterMenu onSubmit={this.getPosts}
-                        userData={this.state.user}
-                        currentSub={this.state.currentSub}
-                        currentSubCategory={this.state.currentSubCategory} />
-                    <SubDescription currentSub={this.state.currentSub} user={this.state.user} />
-                    <div className="Body">
-                        {this.renderPosts()}
+            <ThemeContext.Provider value={this.state.theme}>
+                <ThemeContext.Consumer>
+                {theme => (
+                    <div className={`App ${theme}`}>
+                        <Header title="Reactive Reddit" 
+                            onUserHover={() => this.displayUserMenu(true)}
+                                onThemeClick={() => this.actionHandler.changeTheme()} />
+                        <UserMenu visible={this.state.userMenuVisible}
+                            user={this.state.user}
+                            isLoggedIn={this.state.user !== null}
+                            onHoverLeave={() => this.displayUserMenu(false)}
+                            onSignIn={this.signIn}
+                            onSignOut={this.signOut} />
+                        <div className="content-wrap">
+                            <FilterMenu onSubmit={this.getPosts}
+                                userData={this.state.user}
+                                currentSub={this.state.currentSub}
+                                currentSubCategory={this.state.currentSubCategory} />
+                            <SubDescription currentSub={this.state.currentSub} user={this.state.user} />
+                            <div className="Body">
+                                {this.renderPosts()}
+                            </div>
+                        </div>
+                        <Spinner visible={this.state.loading} />
+                        <Spinner visible={this.state.loadingMore} isGlobal={false} />
+                        <Waypoint onEnter={this.getMorePosts} />
+                        <AlertDialog show={this.state.alert.show}
+                            title={this.state.alert.title}
+                            message={this.state.alert.message}
+                            onDismiss={this.dismissAlert} />
                     </div>
-                </div>
-                <Spinner visible={this.state.loading} />
-                <Spinner visible={this.state.loadingMore} isGlobal={false} />
-                <Waypoint onEnter={this.getMorePosts} />
-                <AlertDialog show={this.state.alert.show}
-                    title={this.state.alert.title}
-                    message={this.state.alert.message}
-                    onDismiss={this.dismissAlert} />
-            </div>
+                )}
+                </ThemeContext.Consumer>
+            </ThemeContext.Provider>
         );
     }
 }

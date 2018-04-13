@@ -4,6 +4,7 @@ import PostActions from './PostActions';
 import PostDetails from './PostDetails';
 import PostBody from './PostBody';
 import altThumbnail from '../images/Reddit-icon.png';
+import { ThemeContext } from './ThemeContext';
 
 class Post extends Component {
 
@@ -36,27 +37,31 @@ class Post extends Component {
         const { title, id, permalink, custom } = postData;
         const redditLink = config.reddit.url + permalink;
         return (
-            <div className="post" data-id={id}>
-                <div className="post-head">
-                    <img className="post-thumbnail" src={this.state.thumbnail} alt="None"
-                        onClick={() => this.handleThumbnailClick(id, custom)}
-                        onError={this.swapThumbSrc} />
-                    <div className="post-section">
-                        <a id={id + "-title-link"} href={postData.url} target="_blank">
-                            <p className="post-title">{title}</p>
-                        </a>
-                        <PostDetails postData={postData} />
-                        <PostActions customData={custom}
-                            onVoteClick={(dir) => actionHandler.votePost(index, dir)}
-                            onExpandClick={() => actionHandler.expandPost(id)}
-                            onHidePostContent={() => actionHandler.expandPost(null)}
-                            bodyExpanded={expanded}
-                            link={postData.url}
-                            redditLink={redditLink} />
+            <ThemeContext.Consumer>
+            {theme => (
+                <div className={`post ${theme}`} data-id={id}>
+                    <div className="post-head">
+                        <img className="post-thumbnail" src={this.state.thumbnail} alt="None"
+                            onClick={() => this.handleThumbnailClick(id, custom)}
+                            onError={this.swapThumbSrc} />
+                        <div className="post-section">
+                            <a id={id + "-title-link"} href={postData.url} target="_blank">
+                                <p className="post-title">{title}</p>
+                            </a>
+                            <PostDetails postData={postData} />
+                            <PostActions customData={custom}
+                                onVoteClick={(dir) => actionHandler.votePost(index, dir)}
+                                onExpandClick={() => actionHandler.expandPost(id)}
+                                onHidePostContent={() => actionHandler.expandPost(null)}
+                                bodyExpanded={expanded}
+                                link={postData.url}
+                                redditLink={redditLink} />
+                        </div>
                     </div>
+                    <PostBody visible={expanded} postData={postData} />
                 </div>
-                <PostBody visible={expanded} postData={postData} />
-            </div>
+            )}
+            </ThemeContext.Consumer>
         );
     }
 
